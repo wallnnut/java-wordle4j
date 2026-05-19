@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -21,14 +20,14 @@ import java.util.logging.Logger;
 public class WordleDictionaryLoader {
     static final Logger logger = AppLogger.getLogger(WordleDictionaryLoader.class);
     private Function<String, String> normalize;
-    private final String PROJECT_DIR = System.getProperty("user.dir");
+    private final String projectDir = System.getProperty("user.dir");
     private final String fileName;
     private Path absolutePathToFile;
 
     public WordleDictionaryLoader(String fileName) {
         if (fileName != null && !fileName.isEmpty()) {
             this.fileName = fileName.trim();
-            this.absolutePathToFile = Paths.get(PROJECT_DIR, this.fileName);
+            this.absolutePathToFile = Paths.get(projectDir, this.fileName);
         } else {
             throw new IllegalArgumentException("Название файла не должно быть пустым");
         }
