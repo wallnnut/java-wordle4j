@@ -25,10 +25,10 @@ public class WordleGame {
 
     private final String correctAnswer;
     private final WordleDictionary dictionary;
+    private static final int MAX_STEPS = 6;
 
-    private Random r = new Random();
+    private final Random r = new Random();
 
-    private final Set<String> usedWords = new HashSet<>();
     private final Set<String> usedHints = new HashSet<>();
 
     private final Map<Integer, Character> exactMatches = new HashMap<>();
@@ -45,12 +45,8 @@ public class WordleGame {
                 correctAnswer));
     }
 
-    public void setStepsCount(int stepsCount) {
-        this.stepsCount = stepsCount;
-    }
-
-    public boolean isGameRuning(String answer) {
-        return stepsCount < 6 && !correctAnswer.equals(answer);
+    public boolean isGameRunning(String answer) {
+        return stepsCount < MAX_STEPS && !correctAnswer.equals(answer);
     }
 
     public String getCorrectAnswer() {
@@ -58,24 +54,24 @@ public class WordleGame {
     }
 
     public String handleUserAnswer(String answer) {
+
         logger.info(String.format("Ответ пользователя: %s", answer));
 
-        if (isAnswerValid(answer) && dictionary.hasWord(answer)) {
-            String comparingResult = dictionary.compareWords(answer, correctAnswer);
-
-            updateConstraints(answer, comparingResult);
-
-            stepsCount++;
-
-            logger.info(String.format("Результат сравнения: %s, Счетчик шагов %d", comparingResult, stepsCount));
-
-            logger.info(String.format("exactMatches: %s, presentChars: %s, absentChars: %s", exactMatches, presentChars,
-                    absentChars));
-
-            return comparingResult;
-        } else {
-            return "Неверное количество символов в слове или такого слова не существет в справочнике";
+        if (!isAnswerValid(answer)) {
+            throw new InvalidWordException("Слово должно содержать 5 букв");
         }
+
+        if (!dictionary.hasWord(answer)) {
+            throw new InvalidWordException("Слова нет в словаре");
+        }
+
+        String comparingResult = dictionary.compareWords(answer, correctAnswer);
+
+        updateConstraints(answer, comparingResult);
+
+        stepsCount++;
+
+        return comparingResult;
     }
 
     public boolean isAnswerValid(String answer) {
@@ -87,9 +83,12 @@ public class WordleGame {
 
     }
 
+    Set<String> getUsedHints() {
+        return usedHints;
+    }
+
     public String getHint() {
         List<String> candidates = dictionary.filter(exactMatches, presentChars, absentChars);
-        candidates.removeAll(usedWords);
         candidates.removeAll(usedHints);
 
         if (candidates.isEmpty()) {

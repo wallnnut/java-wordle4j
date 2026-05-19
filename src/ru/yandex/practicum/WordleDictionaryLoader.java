@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /*
 этот класс содержит в себе всю рутину по работе с файлами словарей и с кодировками
@@ -18,16 +17,15 @@ import java.util.logging.Logger;
     на выходе должен быть класс WordleDictionary
  */
 public class WordleDictionaryLoader {
-    static final Logger logger = AppLogger.getLogger(WordleDictionaryLoader.class);
     private Function<String, String> normalize;
-    private final String projectDir = System.getProperty("user.dir");
+    private static final String PROJECT_DIR = System.getProperty("user.dir");
     private final String fileName;
     private Path absolutePathToFile;
 
     public WordleDictionaryLoader(String fileName) {
         if (fileName != null && !fileName.isEmpty()) {
             this.fileName = fileName.trim();
-            this.absolutePathToFile = Paths.get(projectDir, this.fileName);
+            this.absolutePathToFile = Paths.get(PROJECT_DIR, this.fileName);
         } else {
             throw new IllegalArgumentException("Название файла не должно быть пустым");
         }

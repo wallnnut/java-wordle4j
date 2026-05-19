@@ -44,16 +44,26 @@ public class Wordle {
             System.out.println("Угадайте слово из 5 букв. У вас 6 попыток.");
             System.out.println("Введите слово, нажмите Enter для подсказки или 'exit' для выхода.\n");
 
-            while (game.isGameRuning(answer)) {
+            while (game.isGameRunning(answer)) {
+                runGameLoop(game);
+            }
+            System.out.printf("Загаданное слово: %s", game.getCorrectAnswer());
+        } catch (DictionaryLoadException e) {
+            logger.log(Level.SEVERE, "Ошибка загрузки словаря", e);
+        }
 
-                /**
-                 * Получаем ответ от пользователя и нормализуем его
-                 */
+    }
+
+    private static void runGameLoop(WordleGame game) {
+        String answer = "";
+
+        while (game.isGameRunning(answer)) {
+            try {
                 answer = WordleDictionary.normalize(sc.nextLine());
 
                 if (answer.equalsIgnoreCase("exit")) {
                     logger.info("Завершение сессии пользователем");
-                    System.exit(1);
+                    System.exit(0);
                 }
 
                 if (answer.isEmpty()) {
@@ -64,13 +74,12 @@ public class Wordle {
                 String comparingResult = game.handleUserAnswer(answer);
 
                 System.out.println(comparingResult);
+
+            } catch (InvalidWordException e) {
+                System.out.println(e.getMessage());
+                logger.log(Level.INFO, e.getMessage(), e);
             }
-
-            System.out.printf("Загаданное слово: %s", game.getCorrectAnswer());
-        } catch (DictionaryLoadException e) {
-            logger.log(Level.SEVERE, "Ошибка загрузки словаря", e);
         }
-
     }
 
 }

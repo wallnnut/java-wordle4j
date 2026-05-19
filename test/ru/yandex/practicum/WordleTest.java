@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -84,6 +85,79 @@ class WordleTest {
         assertTrue(filtered.contains("книга"));
         assertFalse(filtered.contains("арбуз")); // есть 'р' и 'б' в absent
         assertFalse(filtered.contains("трава")); // не подходит по exact
+    }
+
+    @Test
+    void shouldReturnHintFromFiveLetterWords() {
+
+        WordleDictionary dict = mock(WordleDictionary.class);
+
+        when(dict.getRandomWord()).thenReturn("яблок");
+        when(dict.getWords()).thenReturn(List.of("яблок", "груша", "слива"));
+        when(dict.hasWord(anyString())).thenReturn(true);
+
+        when(dict.filter(anyMap(), anySet(), anySet())).thenReturn(new ArrayList<>(List.of("яблок", "груша", "слива")));
+
+        WordleGame game = new WordleGame(dict);
+
+        String hint = game.getHint();
+
+        assertTrue(List.of("яблок", "груша", "слива").contains(hint));
+    }
+
+    @Test
+    void shouldReturnNoHintsMessage() {
+
+        WordleDictionary dict = mock(WordleDictionary.class);
+
+        when(dict.getRandomWord()).thenReturn("яблок");
+        when(dict.getWords()).thenReturn(List.of("яблок"));
+        when(dict.hasWord(anyString())).thenReturn(true);
+
+        when(dict.filter(anyMap(), anySet(), anySet())).thenReturn(new ArrayList<>());
+
+        WordleGame game = new WordleGame(dict);
+
+        String hint = game.getHint();
+
+        assertEquals("Нет доступных подсказок", hint);
+    }
+
+    @Test
+    void shouldStoreUsedHint() {
+
+        WordleDictionary dict = mock(WordleDictionary.class);
+
+        when(dict.getRandomWord()).thenReturn("яблок");
+        when(dict.getWords()).thenReturn(List.of("яблок", "груша"));
+        when(dict.hasWord(anyString())).thenReturn(true);
+
+        when(dict.filter(anyMap(), anySet(), anySet())).thenReturn(new ArrayList<>(List.of("яблок", "груша")));
+
+        WordleGame game = new WordleGame(dict);
+
+        String hint = game.getHint();
+
+        assertTrue(game.getUsedHints().contains(hint));
+    }
+
+    @Test
+    void shouldNotRepeatHintIfPossible() {
+
+        WordleDictionary dict = mock(WordleDictionary.class);
+
+        when(dict.getRandomWord()).thenReturn("яблок");
+        when(dict.getWords()).thenReturn(List.of("яблок", "груша", "слива"));
+        when(dict.hasWord(anyString())).thenReturn(true);
+
+        when(dict.filter(anyMap(), anySet(), anySet())).thenReturn(new ArrayList<>(List.of("яблок", "груша", "слива")));
+
+        WordleGame game = new WordleGame(dict);
+
+        String first = game.getHint();
+        String second = game.getHint();
+
+        assertNotEquals(first, second);
     }
 
 }
